@@ -23,7 +23,6 @@
 package me.gnat008.zombietracker;
 
 import me.gnat008.zombietracker.commands.ZTCommand;
-import me.gnat008.zombietracker.util.Printer;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
