@@ -41,19 +41,19 @@ public class Tracker {
 
     private void doCommand() {
         if (args.length == 1) {
-            if (plugin.getPlayers().contains(player.getUniqueId())) {
-                plugin.removePlayer(player.getUniqueId());
+            if (plugin.getPlayers().containsKey(player)) {
+                plugin.removePlayer(player);
                 plugin.getPrinter().printToPlayer(player, "Tracker disabled!", false);
             } else {
-                plugin.addPlayer(player.getUniqueId());
+                plugin.addPlayer(player);
                 plugin.getPrinter().printToPlayer(player, "Tracker enabled!", false);
             }
         } else if (args.length == 2) {
             if (args[1].equalsIgnoreCase("on")) {
-                plugin.addPlayer(player.getUniqueId());
+                plugin.addPlayer(player);
                 plugin.getPrinter().printToPlayer(player, "Tracker enabled!", false);
             } else if (args[1].equalsIgnoreCase("off")) {
-                plugin.removePlayer(player.getUniqueId());
+                plugin.removePlayer(player);
                 plugin.getPrinter().printToPlayer(player, "Tracker disabled!", false);
             } else {
                 plugin.getPrinter().printToPlayer(player, "Invalid usage! Use /zt tracker [on|off]", true);

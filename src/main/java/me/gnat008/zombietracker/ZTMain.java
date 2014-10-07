@@ -24,15 +24,14 @@ package me.gnat008.zombietracker;
 
 import me.gnat008.zombietracker.commands.ZTCommand;
 import me.gnat008.zombietracker.util.Printer;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.WeakHashMap;
 
 public class ZTMain extends JavaPlugin {
 
-    private List<UUID> players = new ArrayList<UUID>();
+    private WeakHashMap<Player, Boolean> players = new WeakHashMap<Player, Boolean>();
 
     private Printer printer;
 
@@ -48,7 +47,7 @@ public class ZTMain extends JavaPlugin {
         getServer().getScheduler().cancelTasks(this);
     }
 
-    public List<UUID> getPlayers() {
+    public WeakHashMap<Player, Boolean> getPlayers() {
         return this.players;
     }
 
@@ -56,11 +55,11 @@ public class ZTMain extends JavaPlugin {
         return this.printer;
     }
 
-    public void addPlayer(UUID player) {
-        this.players.add(player);
+    public void addPlayer(Player player) {
+        this.players.put(player, true);
     }
 
-    public void removePlayer(UUID player) {
+    public void removePlayer(Player player) {
         this.players.remove(player);
     }
 }
