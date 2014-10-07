@@ -1,0 +1,4 @@
+main: me.gnat008.zombietracker.ZTMain
+version: 1.0.0
+name: ZombieTracker
+author: Gnat008
