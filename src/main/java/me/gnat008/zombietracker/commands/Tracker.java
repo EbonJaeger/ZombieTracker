@@ -23,10 +23,15 @@
 package me.gnat008.zombietracker.commands;
 
 import me.gnat008.zombietracker.ZTMain;
+import org.bukkit.ChatColor;
+import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Zombie;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.material.Wool;
 
 public class Tracker {
 
@@ -54,7 +59,7 @@ public class Tracker {
             } else {
                 plugin.addPlayer(player);
                 plugin.getPrinter().printToPlayer(player, "Tracker enabled!", false);
-                runCheckingTask();
+                createTracker();
             }
         } else if (args.length == 2) {
             ValidArgs vargs;
@@ -69,7 +74,7 @@ public class Tracker {
                 case ON:
                     plugin.addPlayer(player);
                     plugin.getPrinter().printToPlayer(player, "Tracker enabled!", false);
-                    runCheckingTask();
+                    createTracker();
 
                 case OFF:
                     plugin.removePlayer(player);
@@ -78,6 +83,18 @@ public class Tracker {
         } else {
             plugin.getPrinter().printToPlayer(player, "Invalid usage! Use /zt tracker [on|off]", true);
         }
+    }
+
+    private void createTracker() {
+        Wool wool = new Wool(DyeColor.BLACK);
+        ItemStack item = wool.toItemStack(1);
+
+        ItemMeta meta = item.getItemMeta();
+        meta.setDisplayName(ChatColor.GRAY + "Zombie Scanning Device");
+        item.setItemMeta(meta);
+
+        player.getInventory().addItem(item);
+        runCheckingTask();
     }
 
     private void runCheckingTask() {
@@ -96,17 +113,17 @@ public class Tracker {
                             Location playerLocation = player.getLocation();
 
                             if (entityLocation.distance(playerLocation) < 10) {
-                                //
+                                updateTracker(DyeColor.WHITE);
                             } else if (entityLocation.distance(playerLocation) < 20) {
-                                //
+                                updateTracker(DyeColor.LIME);
                             } else if (entityLocation.distance(playerLocation) < 30) {
-                                //
+                                updateTracker(DyeColor.GREEN);
                             } else if (entityLocation.distance(playerLocation) < 40) {
-                                //
+                                updateTracker(DyeColor.YELLOW);
                             } else if (entityLocation.distance(playerLocation) < 50) {
-                                //
+                                updateTracker(DyeColor.ORANGE);
                             } else {
-                                //
+                                updateTracker(DyeColor.RED);
                             }
 
                             found = true;
@@ -115,5 +132,15 @@ public class Tracker {
                 }
             }
         }, DELAY, DELAY);
+    }
+
+    private void updateTracker(DyeColor newColor) {
+        for (ItemStack item : player.getInventory().getContents()) {
+            if (item != null && item.hasItemMeta() &&
+                    item.getItemMeta().hasDisplayName() &&
+                    item.getItemMeta().getDisplayName().equals(ChatColor.GRAY + "Zombie Scanning Device")) {
+                item.setDurability((short) newColor.getDyeData());
+            }
+        }
     }
 }
