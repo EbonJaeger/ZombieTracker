@@ -27,6 +27,8 @@ import org.bukkit.entity.Player;
 
 public class Tracker {
 
+    private enum ValidArgs {ON, OFF}
+
     private Player player;
     private String[] args;
     private ZTMain plugin;
@@ -49,14 +51,22 @@ public class Tracker {
                 plugin.getPrinter().printToPlayer(player, "Tracker enabled!", false);
             }
         } else if (args.length == 2) {
-            if (args[1].equalsIgnoreCase("on")) {
-                plugin.addPlayer(player);
-                plugin.getPrinter().printToPlayer(player, "Tracker enabled!", false);
-            } else if (args[1].equalsIgnoreCase("off")) {
-                plugin.removePlayer(player);
-                plugin.getPrinter().printToPlayer(player, "Tracker disabled!", false);
-            } else {
+            ValidArgs vargs;
+            try {
+                vargs = ValidArgs.valueOf(args[1].toUpperCase());
+            } catch (Exception notEnum) {
                 plugin.getPrinter().printToPlayer(player, "Invalid usage! Use /zt tracker [on|off]", true);
+                return;
+            }
+
+            switch (vargs) {
+                case ON:
+                    plugin.addPlayer(player);
+                    plugin.getPrinter().printToPlayer(player, "Tracker enabled!", false);
+
+                case OFF:
+                    plugin.removePlayer(player);
+                    plugin.getPrinter().printToPlayer(player, "Tracker disabled!", false);
             }
         } else {
             plugin.getPrinter().printToPlayer(player, "Invalid usage! Use /zt tracker [on|off]", true);
