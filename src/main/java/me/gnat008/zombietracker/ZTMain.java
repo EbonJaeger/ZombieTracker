@@ -23,7 +23,6 @@
 package me.gnat008.zombietracker;
 
 import me.gnat008.zombietracker.commands.ZTCommand;
-import me.gnat008.zombietracker.listeners.PlayerQuitListener;
 import me.gnat008.zombietracker.tracker.TrackerManager;
 import me.gnat008.zombietracker.util.Printer;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -39,8 +38,6 @@ public class ZTMain extends JavaPlugin {
         this.manager = TrackerManager.getInstance(this);
 
         getCommand("zombietracker").setExecutor(new ZTCommand(this));
-
-        getServer().getPluginManager().registerEvents(new PlayerQuitListener(this), this);
     }
 
     @Override
