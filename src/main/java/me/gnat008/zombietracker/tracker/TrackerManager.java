@@ -20,7 +20,7 @@
  * THE SOFTWARE.
  */
 
-package me.gnat008.zombietracker.commands;
+package me.gnat008.zombietracker.tracker;
 
 import me.gnat008.zombietracker.ZTMain;
 import org.bukkit.ChatColor;
@@ -33,63 +33,37 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.Wool;
 
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.UUID;
 
-public class Tracker {
+public class TrackerManager {
 
-    private enum ValidArgs {ON, OFF}
+    private static TrackerManager instance;
 
-    private Player player;
-    private String[] args;
+    private HashMap<UUID, Tracker> activeTrackers = new HashMap<UUID, Tracker>();
+    private final long DELAY = 200L;
+
     private ZTMain plugin;
 
-    private final long DELAY = 200L; // 10 seconds
-
-    public Tracker(ZTMain plugin, Player player, String... args) {
+    private TrackerManager(ZTMain plugin) {
         this.plugin = plugin;
-        this.player = player;
-        this.args = args;
-
-        doCommand();
     }
 
-    private void doCommand() {
-        if (args.length == 1) {
-            if (plugin.getPlayers().containsKey(player)) {
-                plugin.removePlayer(player);
-                plugin.getPrinter().printToPlayer(player, "Tracker disabled!", false);
-                removeTracker();
-            } else {
-                plugin.addPlayer(player);
-                plugin.getPrinter().printToPlayer(player, "Tracker enabled!", false);
-                createTracker();
-            }
-        } else if (args.length == 2) {
-            ValidArgs vargs;
-            try {
-                vargs = ValidArgs.valueOf(args[1].toUpperCase());
-            } catch (Exception notEnum) {
-                plugin.getPrinter().printToPlayer(player, "Invalid usage! Use /zt tracker [on|off]", true);
-                return;
-            }
-
-            switch (vargs) {
-                case ON:
-                    plugin.addPlayer(player);
-                    plugin.getPrinter().printToPlayer(player, "Tracker enabled!", false);
-                    createTracker();
-
-                case OFF:
-                    plugin.removePlayer(player);
-                    plugin.getPrinter().printToPlayer(player, "Tracker disabled!", false);
-                    removeTracker();
-            }
-        } else {
-            plugin.getPrinter().printToPlayer(player, "Invalid usage! Use /zt tracker [on|off]", true);
+    public static TrackerManager getInstance(ZTMain plugin) {
+        if (instance == null) {
+            instance = new TrackerManager(plugin);
+            return instance;
         }
+
+        return instance;
     }
 
-    private void createTracker() {
+    public HashMap<UUID, Tracker> getActiveTrackers() {
+        return this.activeTrackers;
+    }
+
+    public void createTracker(Player player) {
         Wool wool = new Wool(DyeColor.BLACK);
         ItemStack item = wool.toItemStack(1);
 
@@ -98,14 +72,30 @@ public class Tracker {
         item.setItemMeta(meta);
 
         player.getInventory().addItem(item);
-        runCheckingTask();
+        activeTrackers.put(player.getUniqueId(), new Tracker(DyeColor.BLACK));
+        startCheckingTask(player);
     }
 
-    private void runCheckingTask() {
+    public void removeTracker(Player player) {
+        Iterator<ItemStack> itr = player.getInventory().iterator();
+        while (itr.hasNext()) {
+            if (itr.next().hasItemMeta() &&
+                    itr.next().getItemMeta().hasDisplayName() &&
+                    itr.next().getItemMeta().getDisplayName().equals(ChatColor.GRAY + "Zombie Scanning Device")) {
+                itr.remove();
+                break;
+            }
+        }
+
+        activeTrackers.remove(player.getUniqueId());
+        player.updateInventory();
+    }
+
+    private void startCheckingTask(final Player player) {
         plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
             @Override
             public void run() {
-                if (!(plugin.getPlayers().containsKey(player))) {
+                if (!(activeTrackers.containsKey(player.getUniqueId()))) {
                     return;
                 }
 
@@ -117,17 +107,17 @@ public class Tracker {
                             Location playerLocation = player.getLocation();
 
                             if (entityLocation.distance(playerLocation) < 10) {
-                                updateTracker(DyeColor.WHITE);
+                                updateTracker(DyeColor.WHITE, player);
                             } else if (entityLocation.distance(playerLocation) < 20) {
-                                updateTracker(DyeColor.LIME);
+                                updateTracker(DyeColor.LIME, player);
                             } else if (entityLocation.distance(playerLocation) < 30) {
-                                updateTracker(DyeColor.GREEN);
+                                updateTracker(DyeColor.GREEN, player);
                             } else if (entityLocation.distance(playerLocation) < 40) {
-                                updateTracker(DyeColor.YELLOW);
+                                updateTracker(DyeColor.YELLOW, player);
                             } else if (entityLocation.distance(playerLocation) < 50) {
-                                updateTracker(DyeColor.ORANGE);
+                                updateTracker(DyeColor.ORANGE, player);
                             } else {
-                                updateTracker(DyeColor.RED);
+                                updateTracker(DyeColor.RED, player);
                             }
 
                             found = true;
@@ -138,7 +128,7 @@ public class Tracker {
         }, DELAY, DELAY);
     }
 
-    private void updateTracker(DyeColor newColor) {
+    private void updateTracker(DyeColor newColor, Player player) {
         for (ItemStack item : player.getInventory().getContents()) {
             if (item != null && item.hasItemMeta() &&
                     item.getItemMeta().hasDisplayName() &&
@@ -147,19 +137,5 @@ public class Tracker {
                 player.updateInventory();
             }
         }
-    }
-
-    private void removeTracker() {
-        Iterator<ItemStack> itr = player.getInventory().iterator();
-        while (itr.hasNext()) {
-            if (itr.next().hasItemMeta() &&
-                    itr.next().getItemMeta().hasDisplayName() &&
-                    itr.next().getItemMeta().getDisplayName().equals(ChatColor.GRAY + "Zombie Scanning Device")) {
-                itr.remove();
-                break;
-            }
-        }
-
-        player.updateInventory();
     }
 }

@@ -60,7 +60,7 @@ public class ZTCommand implements CommandExecutor {
 
             switch (command) {
                 case TRACKER:
-                    new Tracker(plugin, player, args);
+                    TrackerSubCommand.parseCommand(plugin, player, args);
                     return true;
             }
         }

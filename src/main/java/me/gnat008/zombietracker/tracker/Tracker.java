@@ -20,39 +20,23 @@
  * THE SOFTWARE.
  */
 
-package me.gnat008.zombietracker;
+package me.gnat008.zombietracker.tracker;
 
-import me.gnat008.zombietracker.commands.ZTCommand;
-import me.gnat008.zombietracker.listeners.PlayerQuitListener;
-import me.gnat008.zombietracker.tracker.TrackerManager;
-import me.gnat008.zombietracker.util.Printer;
-import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.DyeColor;
 
-public class ZTMain extends JavaPlugin {
+public class Tracker {
 
-    private Printer printer;
-    private TrackerManager manager;
+    private DyeColor state;
 
-    @Override
-    public void onEnable() {
-        this.printer = new Printer(this);
-        this.manager = TrackerManager.getInstance(this);
-
-        getCommand("zombietracker").setExecutor(new ZTCommand(this));
-
-        getServer().getPluginManager().registerEvents(new PlayerQuitListener(this), this);
+    public Tracker(DyeColor state) {
+        this.state = state;
     }
 
-    @Override
-    public void onDisable() {
-        getServer().getScheduler().cancelTasks(this);
+    public DyeColor getState() {
+        return this.state;
     }
 
-    public Printer getPrinter() {
-        return this.printer;
-    }
-
-    public TrackerManager getManager() {
-        return this.manager;
+    public void setState(DyeColor newState) {
+        this.state = newState;
     }
 }
