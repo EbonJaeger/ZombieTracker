@@ -23,7 +23,10 @@
 package me.gnat008.zombietracker.commands;
 
 import me.gnat008.zombietracker.ZTMain;
+import org.bukkit.Location;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Zombie;
 
 public class Tracker {
 
@@ -32,6 +35,8 @@ public class Tracker {
     private Player player;
     private String[] args;
     private ZTMain plugin;
+
+    private final long DELAY = 200L; // 10 seconds
 
     public Tracker(ZTMain plugin, Player player, String... args) {
         this.plugin = plugin;
@@ -49,6 +54,7 @@ public class Tracker {
             } else {
                 plugin.addPlayer(player);
                 plugin.getPrinter().printToPlayer(player, "Tracker enabled!", false);
+                runCheckingTask();
             }
         } else if (args.length == 2) {
             ValidArgs vargs;
@@ -63,6 +69,7 @@ public class Tracker {
                 case ON:
                     plugin.addPlayer(player);
                     plugin.getPrinter().printToPlayer(player, "Tracker enabled!", false);
+                    runCheckingTask();
 
                 case OFF:
                     plugin.removePlayer(player);
@@ -71,5 +78,42 @@ public class Tracker {
         } else {
             plugin.getPrinter().printToPlayer(player, "Invalid usage! Use /zt tracker [on|off]", true);
         }
+    }
+
+    private void runCheckingTask() {
+        plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
+            @Override
+            public void run() {
+                if (!(plugin.getPlayers().containsKey(player))) {
+                    return;
+                }
+
+                boolean found = false;
+                while (!found) {
+                    for (Entity entity : player.getNearbyEntities(50D, 50D, 50D)) {
+                        if (entity instanceof Zombie) {
+                            Location entityLocation = entity.getLocation();
+                            Location playerLocation = player.getLocation();
+
+                            if (entityLocation.distance(playerLocation) < 10) {
+                                //
+                            } else if (entityLocation.distance(playerLocation) < 20) {
+                                //
+                            } else if (entityLocation.distance(playerLocation) < 30) {
+                                //
+                            } else if (entityLocation.distance(playerLocation) < 40) {
+                                //
+                            } else if (entityLocation.distance(playerLocation) < 50) {
+                                //
+                            } else {
+                                //
+                            }
+
+                            found = true;
+                        }
+                    }
+                }
+            }
+        }, DELAY, DELAY);
     }
 }
