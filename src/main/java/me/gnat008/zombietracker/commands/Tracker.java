@@ -33,6 +33,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.Wool;
 
+import java.util.Iterator;
+
 public class Tracker {
 
     private enum ValidArgs {ON, OFF}
@@ -56,6 +58,7 @@ public class Tracker {
             if (plugin.getPlayers().containsKey(player)) {
                 plugin.removePlayer(player);
                 plugin.getPrinter().printToPlayer(player, "Tracker disabled!", false);
+                removeTracker();
             } else {
                 plugin.addPlayer(player);
                 plugin.getPrinter().printToPlayer(player, "Tracker enabled!", false);
@@ -79,6 +82,7 @@ public class Tracker {
                 case OFF:
                     plugin.removePlayer(player);
                     plugin.getPrinter().printToPlayer(player, "Tracker disabled!", false);
+                    removeTracker();
             }
         } else {
             plugin.getPrinter().printToPlayer(player, "Invalid usage! Use /zt tracker [on|off]", true);
@@ -140,7 +144,22 @@ public class Tracker {
                     item.getItemMeta().hasDisplayName() &&
                     item.getItemMeta().getDisplayName().equals(ChatColor.GRAY + "Zombie Scanning Device")) {
                 item.setDurability((short) newColor.getDyeData());
+                player.updateInventory();
             }
         }
+    }
+
+    private void removeTracker() {
+        Iterator<ItemStack> itr = player.getInventory().iterator();
+        while (itr.hasNext()) {
+            if (itr.next().hasItemMeta() &&
+                    itr.next().getItemMeta().hasDisplayName() &&
+                    itr.next().getItemMeta().getDisplayName().equals(ChatColor.GRAY + "Zombie Scanning Device")) {
+                itr.remove();
+                break;
+            }
+        }
+
+        player.updateInventory();
     }
 }
