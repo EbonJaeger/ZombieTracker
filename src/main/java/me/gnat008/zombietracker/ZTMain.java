@@ -22,16 +22,25 @@
 
 package me.gnat008.zombietracker;
 
-import me.gnat008.zombietracker.Util.Printer;
+import me.gnat008.zombietracker.commands.ZTCommand;
+import me.gnat008.zombietracker.util.Printer;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 public class ZTMain extends JavaPlugin {
+
+    private List<UUID> players = new ArrayList<UUID>();
 
     private Printer printer;
 
     @Override
     public void onEnable() {
         this.printer = new Printer(this);
+
+        getCommand("zombietracker").setExecutor(new ZTCommand(this));
     }
 
     @Override
@@ -39,7 +48,19 @@ public class ZTMain extends JavaPlugin {
         getServer().getScheduler().cancelTasks(this);
     }
 
+    public List<UUID> getPlayers() {
+        return this.players;
+    }
+
     public Printer getPrinter() {
         return this.printer;
+    }
+
+    public void addPlayer(UUID player) {
+        this.players.add(player);
+    }
+
+    public void removePlayer(UUID player) {
+        this.players.remove(player);
     }
 }

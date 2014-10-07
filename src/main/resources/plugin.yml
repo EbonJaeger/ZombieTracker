@@ -2,3 +2,8 @@ main: me.gnat008.zombietracker.ZTMain
 version: 1.0.0
 name: ZombieTracker
 author: Gnat008
+
+commands:
+  zombietracker:
+    description: Main command for the ZombieTracker plugin.
+    aliases: [zt]
