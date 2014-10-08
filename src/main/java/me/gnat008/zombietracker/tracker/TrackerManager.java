@@ -93,10 +93,6 @@ public class TrackerManager {
         return plugin.getServer().getScheduler().runTaskTimerAsynchronously(plugin, new Runnable() {
             @Override
             public void run() {
-                if (!(activeTrackers.containsKey(player.getUniqueId()))) {
-                    return;
-                }
-
                 boolean found = false;
                 while (!found) {
                     for (Entity entity : player.getNearbyEntities(50D, 50D, 50D)) {
