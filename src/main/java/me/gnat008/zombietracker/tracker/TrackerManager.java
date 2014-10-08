@@ -99,20 +99,26 @@ public class TrackerManager {
                         if (entity instanceof Zombie) {
                             Location entityLocation = entity.getLocation();
                             Location playerLocation = player.getLocation();
+                            final double distance = entityLocation.distance(playerLocation);
 
-                            if (entityLocation.distance(playerLocation) < 10) {
-                                updateTracker(DyeColor.WHITE, player);
-                            } else if (entityLocation.distance(playerLocation) < 20) {
-                                updateTracker(DyeColor.LIME, player);
-                            } else if (entityLocation.distance(playerLocation) < 30) {
-                                updateTracker(DyeColor.GREEN, player);
-                            } else if (entityLocation.distance(playerLocation) < 40) {
-                                updateTracker(DyeColor.YELLOW, player);
-                            } else if (entityLocation.distance(playerLocation) < 50) {
-                                updateTracker(DyeColor.ORANGE, player);
-                            } else {
-                                updateTracker(DyeColor.RED, player);
-                            }
+                            plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (distance < 10) {
+                                        updateTracker(DyeColor.WHITE, player);
+                                    } else if (distance < 20) {
+                                        updateTracker(DyeColor.LIME, player);
+                                    } else if (distance < 30) {
+                                        updateTracker(DyeColor.GREEN, player);
+                                    } else if (distance < 40) {
+                                        updateTracker(DyeColor.YELLOW, player);
+                                    } else if (distance < 50) {
+                                        updateTracker(DyeColor.ORANGE, player);
+                                    } else {
+                                        updateTracker(DyeColor.RED, player);
+                                    }
+                                }
+                            });
 
                             found = true;
                         }
@@ -122,7 +128,7 @@ public class TrackerManager {
         }, DELAY, DELAY).getTaskId();
     }
 
-    private synchronized void updateTracker(DyeColor newColor, Player player) {
+    private void updateTracker(DyeColor newColor, Player player) {
         for (ItemStack item : player.getInventory().getContents()) {
             if (item != null && item.hasItemMeta() &&
                     item.getItemMeta().hasDisplayName() &&
