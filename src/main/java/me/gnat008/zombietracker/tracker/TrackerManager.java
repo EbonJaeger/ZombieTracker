@@ -34,14 +34,13 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.Wool;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.UUID;
 
 public class TrackerManager {
 
     private static TrackerManager instance;
 
-    private HashMap<UUID, Tracker> activeTrackers = new HashMap<UUID, Tracker>();
+    private HashMap<UUID, Integer> activeTrackers = new HashMap<UUID, Integer>();
     private final long DELAY = 200L;
 
     private ZTMain plugin;
@@ -59,7 +58,7 @@ public class TrackerManager {
         return instance;
     }
 
-    public HashMap<UUID, Tracker> getActiveTrackers() {
+    public HashMap<UUID, Integer> getActiveTrackers() {
         return this.activeTrackers;
     }
 
@@ -72,27 +71,26 @@ public class TrackerManager {
         item.setItemMeta(meta);
 
         player.getInventory().addItem(item);
-        activeTrackers.put(player.getUniqueId(), new Tracker(DyeColor.BLACK));
-        startCheckingTask(player);
+        activeTrackers.put(player.getUniqueId(), createCheckingTask(player));
     }
 
     public void removeTracker(Player player) {
-        Iterator<ItemStack> itr = player.getInventory().iterator();
-        while (itr.hasNext()) {
-            if (itr.next().hasItemMeta() &&
-                    itr.next().getItemMeta().hasDisplayName() &&
-                    itr.next().getItemMeta().getDisplayName().equals(ChatColor.GRAY + "Zombie Scanning Device")) {
-                itr.remove();
+        for (ItemStack is : player.getInventory().getContents()) {
+            if (is.hasItemMeta() &&
+                    is.getItemMeta().hasDisplayName() &&
+                    is.getItemMeta().getDisplayName().equals(ChatColor.GRAY + "Zombie Scanning Device")) {
+                player.getInventory().remove(is);
                 break;
             }
         }
 
+        plugin.getServer().getScheduler().cancelTask(activeTrackers.get(player.getUniqueId()));
         activeTrackers.remove(player.getUniqueId());
         player.updateInventory();
     }
 
-    private void startCheckingTask(final Player player) {
-        plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
+    private int createCheckingTask(final Player player) {
+        return plugin.getServer().getScheduler().runTaskTimerAsynchronously(plugin, new Runnable() {
             @Override
             public void run() {
                 if (!(activeTrackers.containsKey(player.getUniqueId()))) {
@@ -125,10 +123,10 @@ public class TrackerManager {
                     }
                 }
             }
-        }, DELAY, DELAY);
+        }, DELAY, DELAY).getTaskId();
     }
 
-    private void updateTracker(DyeColor newColor, Player player) {
+    private synchronized void updateTracker(DyeColor newColor, Player player) {
         for (ItemStack item : player.getInventory().getContents()) {
             if (item != null && item.hasItemMeta() &&
                     item.getItemMeta().hasDisplayName() &&

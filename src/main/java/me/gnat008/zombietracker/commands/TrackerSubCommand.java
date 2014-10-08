@@ -56,10 +56,12 @@ public class TrackerSubCommand {
                 case ON:
                     plugin.getManager().createTracker(player);
                     plugin.getPrinter().printToPlayer(player, "Tracker enabled!", false);
+                    return;
 
                 case OFF:
                     plugin.getManager().removeTracker(player);
                     plugin.getPrinter().printToPlayer(player, "Tracker disabled!", false);
+                    return;
             }
         } else {
             plugin.getPrinter().printToPlayer(player, "Invalid usage! Use /zt tracker [on|off]", true);
