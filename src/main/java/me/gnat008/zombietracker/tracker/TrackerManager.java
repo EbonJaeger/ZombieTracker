@@ -133,7 +133,7 @@ public class TrackerManager {
             if (item != null && item.hasItemMeta() &&
                     item.getItemMeta().hasDisplayName() &&
                     item.getItemMeta().getDisplayName().equals(ChatColor.GRAY + "Zombie Scanning Device")) {
-                item.setDurability((short) newColor.getDyeData());
+                item.setDurability((short) newColor.getWoolData());
                 player.updateInventory();
             }
         }
