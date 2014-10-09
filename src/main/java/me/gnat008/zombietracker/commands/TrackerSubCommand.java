@@ -54,14 +54,22 @@ public class TrackerSubCommand {
 
             switch (vargs) {
                 case ON:
+                    if (plugin.getManager().getActiveTrackers().containsKey(player.getUniqueId())) {
+                        plugin.getPrinter().printToPlayer(player, "Your tracker is already enabled!", true);
+                        return;
+                    }
+
                     plugin.getManager().createTracker(player);
                     plugin.getPrinter().printToPlayer(player, "Tracker enabled!", false);
                     return;
 
                 case OFF:
-                    plugin.getManager().removeTracker(player);
-                    plugin.getPrinter().printToPlayer(player, "Tracker disabled!", false);
-                    return;
+                    if (plugin.getManager().getActiveTrackers().containsKey(player.getUniqueId())) {
+                        plugin.getManager().removeTracker(player);
+                        plugin.getPrinter().printToPlayer(player, "Tracker disabled!", false);
+                    } else {
+                        plugin.getPrinter().printToPlayer(player, "Your tracker is already disabled!", true);
+                    }
             }
         } else {
             plugin.getPrinter().printToPlayer(player, "Invalid usage! Use /zt tracker [on|off]", true);
